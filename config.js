@@ -1,6 +1,6 @@
-// ضع قيمتي مشروعك هنا (Supabase > Project Settings > API) ثم احفظ الملف
+// إعدادات مشروعك في Supabase (المفتاح من نوع anon العام وآمن للنشر)
 window.APP_CONFIG = {
-  url: 'YOUR_SUPABASE_URL',   // مثال: https://abcdxyz.supabase.co
-  key: 'YOUR_ANON_KEY',       // مفتاح anon public فقط (وليس service_role)
-  audio: true                 // اجعلها false إن لم ترفع ملفات الصوت
+  url: 'https://vxumzsykthfhiqoaueqb.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4dW16c3lrdGhmaGlxb2F1ZXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMTkwNjYsImV4cCI6MjExMDY5NTA2Nn0.ajAyb7kZiLKdXkbgt1SJxxdnUVr10Mw49XfIUWBk8A0',
+  audio: false   // اجعلها true بعد رفع ملفات الصوت
 };

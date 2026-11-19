@@ -170,7 +170,7 @@ setup:["افتح الملف في محرر نصوص وضع SUPABASE_URL وSUPABAS
 });
 
 /* المفاتيح تُوضع في ملف config.js */
-const CFG=window.APP_CONFIG||{},SUPABASE_URL=CFG.url||'YOUR_SUPABASE_URL',SUPABASE_ANON_KEY=CFG.key||'YOUR_ANON_KEY',AUDIO_FILES=CFG.audio!==false;
+const CFG=window.APP_CONFIG||{},SUPABASE_URL=CFG.url||'https://vxumzsykthfhiqoaueqb.supabase.co',SUPABASE_ANON_KEY=CFG.key||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ4dW16c3lrdGhmaGlxb2F1ZXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUxMTkwNjYsImV4cCI6MjExMDY5NTA2Nn0.ajAyb7kZiLKdXkbgt1SJxxdnUVr10Mw49XfIUWBk8A0',AUDIO_FILES=CFG.audio===true;
 const LVN=['A0','A1','A2','B1','B2','C1','C2'],LGS=['ar','en','fr'];
 const $=s=>document.querySelector(s),app=$('#app');
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
