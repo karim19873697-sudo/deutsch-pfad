@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fffaf3">
+<title>Deutsch Pfad — تعلّم الألمانية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{--bg:#fffaf3;--card:#fff;--tx:#1f2937;--mu:#6b7280;--bd:#e8e2d6;--red:#ff4d4f;--redd:#d9363e;--yel:#ffc800;--yeld:#d9a600;--grn:#2bc48a;--grnd:#1a9a69;--blu:#3b82f6;--blud:#2563eb;--pur:#8b5cf6;--sh:0 4px 0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#141418;--card:#1f1f26;--tx:#f5f3ee;--mu:#a1a1aa;--bd:#33333d;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Nunito,Cairo,system-ui,sans-serif;font-weight:700;line-height:1.55}
+#app{max-width:560px;margin:0 auto;min-height:100vh;padding:0 14px calc(92px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:14px 18px;font-weight:900;font-size:17px;color:#fff;background:var(--grn);box-shadow:var(--sh) var(--grnd);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--grnd)}
+.btn.red{background:var(--red);box-shadow:var(--sh) var(--redd)}.btn.blu{background:var(--blu);box-shadow:var(--sh) var(--blud)}
+.btn.gh{background:var(--card);color:var(--tx);border:2px solid var(--bd);box-shadow:var(--sh) var(--bd)}
+.btn:disabled{background:var(--bd);color:var(--mu);box-shadow:none;cursor:not-allowed}
+.top{position:sticky;top:0;z-index:20;display:flex;gap:8px;align-items:center;justify-content:space-between;background:var(--bg);padding:10px 0;padding-top:calc(10px + env(safe-area-inset-top,0px));margin-top:calc(-1 * env(safe-area-inset-top,0px))}
+.chip{display:inline-flex;gap:5px;align-items:center;background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:4px 10px;font-weight:900}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:18px;padding:14px;margin:12px 0}
+h1{font-size:26px;font-weight:900;margin:8px 0}h2{font-size:19px;margin:6px 0}
+.mu{color:var(--mu);font-weight:600}.c{text-align:center}
+.lvl{margin:26px 0 6px;text-align:center;font-weight:900;color:var(--mu);display:flex;align-items:center;gap:10px}.lvl:before,.lvl:after{content:"";flex:1;height:2px;background:var(--bd)}
+.unit{border-radius:18px;padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.unit small{opacity:.85;font-weight:800}.unit button{background:rgba(255,255,255,.25);border:0;border-radius:12px;padding:8px 10px;color:#fff;font-weight:900}
+.path{display:flex;flex-direction:column;align-items:center;gap:14px;padding:18px 0 4px}
+.node{position:relative;width:76px;height:76px;border-radius:50%;border:0;font-size:30px;color:#fff;background:var(--grn);box-shadow:0 7px 0 var(--grnd);transform:translateX(var(--x));transition:transform .08s}
+.node:active{transform:translateX(var(--x)) translateY(5px);box-shadow:0 2px 0 var(--grnd)}
+.node.done{background:var(--yel);box-shadow:0 7px 0 var(--yeld)}.node.lock{background:var(--bd);box-shadow:0 7px 0 #cfc8b8;color:var(--mu)}
+.node.exam{background:var(--pur);box-shadow:0 7px 0 #6d3fd1}.node.exam.lock{background:var(--bd);box-shadow:0 7px 0 #cfc8b8}
+.node.cur:after{content:attr(data-go);position:absolute;top:-34px;left:50%;transform:translateX(-50%);background:var(--card);color:var(--grnd);border:2px solid var(--bd);border-radius:12px;padding:1px 10px;font-size:14px;font-weight:900;animation:bob 1s ease-in-out infinite;white-space:nowrap}
+.node small{position:absolute;bottom:-8px;left:0;right:0;font-size:11px;letter-spacing:1px}
+@keyframes bob{50%{transform:translateX(-50%) translateY(-5px)}}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:var(--card);border-top:2px solid var(--bd);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav div{display:flex;max-width:560px;width:100%}.nav button{flex:1;border:0;background:none;padding:10px 0 8px;font-size:12px;font-weight:900;color:var(--mu)}
+.nav button b{display:block;font-size:24px;line-height:1.1}.nav button.on{color:var(--blu)}
+.ses{padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:240px}
+.pb{flex:1;height:16px;background:var(--bd);border-radius:10px;overflow:hidden}.pb i{display:block;height:100%;background:var(--grn);border-radius:10px;transition:width .3s}
+.x{background:none;border:0;font-size:26px;color:var(--mu)}
+.ins{color:var(--mu);font-weight:900;margin:22px 0 6px}
+.q{font-size:26px;font-weight:900;margin:6px 0 16px;unicode-bidi:plaintext}
+.opt{display:block;width:100%;text-align:start;background:var(--card);border:2px solid var(--bd);border-radius:16px;padding:13px 16px;margin:9px 0;font-size:18px;font-weight:800;box-shadow:0 4px 0 var(--bd);unicode-bidi:plaintext}
+.opt:active{transform:translateY(3px);box-shadow:0 1px 0 var(--bd)}
+.opt.ok{border-color:var(--grn);background:rgba(43,196,138,.16);box-shadow:0 4px 0 var(--grnd)}.opt.bad{border-color:var(--red);background:rgba(255,77,79,.12);box-shadow:0 4px 0 var(--redd)}
+.opt.sel{border-color:var(--blu);background:rgba(59,130,246,.1);box-shadow:0 4px 0 var(--blu)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid2 .opt{text-align:center;margin:0;font-size:38px}
+.say{border:0;background:var(--blu);color:#fff;border-radius:14px;padding:6px 14px;font-size:20px;box-shadow:0 4px 0 var(--blud);margin:0 8px}
+.bigsay{display:block;margin:20px auto;width:110px;height:110px;border-radius:30px;font-size:46px}
+input.in{font:inherit;font-size:20px;width:100%;box-sizing:border-box;padding:13px;border-radius:14px;border:2px solid var(--bd);background:var(--card);color:var(--tx);direction:ltr;text-align:left}
+.keys{display:flex;gap:8px;margin:10px 0}.keys button{flex:1;padding:10px;border-radius:12px;border:2px solid var(--bd);background:var(--card);font-size:20px;font-weight:900}
+.chips{display:flex;gap:8px;flex-wrap:wrap;min-height:54px;padding:8px;border-bottom:2px solid var(--bd);direction:ltr;margin-bottom:12px}
+.chips button{background:var(--card);border:2px solid var(--bd);border-radius:12px;padding:8px 12px;font-size:18px;font-weight:900;box-shadow:0 3px 0 var(--bd)}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mt button{background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:12px 8px;font-size:17px;font-weight:800;box-shadow:0 3px 0 var(--bd);unicode-bidi:plaintext}
+.mt button.p0{border-color:#3b82f6;background:rgba(59,130,246,.15)}.mt button.p1{border-color:#f97316;background:rgba(249,115,22,.15)}.mt button.p2{border-color:#8b5cf6;background:rgba(139,92,246,.15)}.mt button.p3{border-color:#ec4899;background:rgba(236,72,153,.15)}.mt button.p4{border-color:#14b8a6;background:rgba(20,184,166,.15)}
+.mt button.sl{outline:3px solid var(--yel)}
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));border-top:2px solid var(--bd);background:var(--bg)}
+.foot>div{max-width:560px;margin:0 auto}
+.foot.ok{background:#d7f7e8;border-color:#a7eccb;color:#0d5b3e}.foot.bad{background:#ffe1e1;border-color:#ffc2c2;color:#8a1f24}
+.foot b{font-size:20px;display:block}.foot.ok .btn{box-shadow:var(--sh) var(--grnd)}.foot.bad .btn{background:var(--red);box-shadow:var(--sh) var(--redd)}
+.foot{animation:up .25s}@keyframes up{from{transform:translateY(100%)}}
+.cel{text-align:center;padding-top:30px}.stat{display:flex;gap:10px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+.stat div{border:2px solid var(--bd);border-radius:16px;padding:8px 14px;min-width:92px;background:var(--card)}.stat b{display:block;font-size:22px}
+.stars{font-size:46px;letter-spacing:6px}
+.ring{--p:0;width:96px;height:96px;border-radius:50%;margin:6px auto;background:conic-gradient(var(--yel) calc(var(--p)*1%),var(--bd) 0);display:grid;place-items:center}.ring span{width:74px;height:74px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-weight:900}
+canvas#cf{position:fixed;inset:0;pointer-events:none;z-index:60}
+.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}.modal>div{background:var(--card);border-radius:24px 24px 0 0;padding:20px;max-width:560px;width:100%;box-sizing:border-box;animation:up .25s;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:14px;z-index:80;max-width:88%;text-align:center}
+.av{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.av button{font-size:28px;border:2px solid var(--bd);background:var(--card);border-radius:14px;padding:6px}.av button.on{border-color:var(--blu)}
+.week{display:flex;gap:8px;align-items:flex-end;height:90px}.week div{flex:1;text-align:center;font-size:11px}.week i{display:block;background:var(--yel);border-radius:6px 6px 0 0;min-height:4px}
+.badges{display:flex;gap:10px;flex-wrap:wrap}.badges span{font-size:28px;padding:6px 10px;border:2px solid var(--bd);border-radius:14px}.badges .off{opacity:.25;filter:grayscale(1)}
+.seg{display:flex;gap:8px}.seg button{flex:1;padding:10px;border-radius:12px;border:2px solid var(--bd);background:var(--card);font-weight:900}.seg button.on{border-color:var(--blu);background:rgba(59,130,246,.12)}
+input.t{font:inherit;width:100%;box-sizing:border-box;padding:13px;margin:6px 0;border-radius:14px;border:2px solid var(--bd);background:var(--card);color:var(--tx)}
+.cert{border:6px double var(--yeld);border-radius:18px;padding:30px 18px;text-align:center;background:var(--card)}
+.de{direction:ltr;unicode-bidi:isolate;display:inline-block}
+@media print{body *{visibility:hidden}.cert,.cert *{visibility:visible}.cert{position:absolute;inset:20px}}
+</style>
+</head>
+<body>
+<canvas id="cf"></canvas>
+<div id="app"></div>
+<script>
+const UI={
+title:["المستوى 0 — ابدأ من الصفر","Level 0 — Start from zero","Niveau 0 — Partir de zéro"],
+sub:["الحروف والنطق والأرقام وأساسيات التواصل: 6 أقسام × 120 سؤالًا. تعلّم أولًا ثم تدرّب ثم اختبر نفسك.","Letters, pronunciation, numbers and survival basics: 6 sections × 120 questions. Learn, practice, then test yourself.","Lettres, prononciation, chiffres et bases : 6 sections × 120 questions. Apprenez, entraînez-vous, puis testez-vous."],
+s1:["الحروف والتهجئة (A–Z وÄ Ö Ü ß)","Alphabet & spelling (A–Z and Ä Ö Ü ß)","Alphabet et épellation (A–Z et Ä Ö Ü ß)"],
+s2:["النطق والأصوات (ä ö ü ß ch ei eu…)","Pronunciation & sounds (ä ö ü ß ch ei eu…)","Prononciation et sons (ä ö ü ß ch ei eu…)"],
+s3:["الأرقام","Numbers","Nombres"],
+s4:["التحيات والعبارات الأساسية","Greetings & essential phrases","Salutations et phrases essentielles"],
+s5:["الأيام والشهور والفصول والساعة","Days, months, seasons & time","Jours, mois, saisons et heure"],
+s6:["كلمات يومية بالصور (ألوان، حيوانات، طعام…)","Everyday words with pictures","Mots du quotidien en images"],
+learn:["📖 تعلّم","📖 Learn","📖 Apprendre"],prac:["✏️ تدرّب","✏️ Practice","✏️ S’entraîner"],test:["🎯 اختبار (20 سؤالًا)","🎯 Test (20 questions)","🎯 Test (20 questions)"],
+mastered:["{m} من {n} متقنة","{m} of {n} mastered","{m} sur {n} maîtrisées"],
+passed:["✓ اجتزت ({s}%)","✓ Passed ({s}%)","✓ Réussi ({s} %)"],
+back:["رجوع","Back","Retour"],chk:["تحقق","Check","Vérifier"],cf:["تأكيد","Confirm","Valider"],nx:["التالي","Next","Suivant"],
+ok:["✓ صحيح!","✓ Correct!","✓ Correct !"],wr:["✗ الصحيح: ","✗ Correct: ","✗ Bonne réponse : "],
+rep:["سيعود هذا السؤال حتى تتقنه.","This question will return until you master it.","Cette question reviendra jusqu’à ce que vous la maîtrisiez."],
+fail:["أخطأت فيه — سيتكرر","You missed it — it will repeat","Raté — il reviendra"],mt:["إتقان {m}/{n}","Mastery {m}/{n}","Maîtrise {m}/{n}"],
+allm:["أتقنت كل أسئلة هذا القسم 🎉 جرّب الاختبار!","You mastered every question here 🎉 Try the test!","Vous maîtrisez toutes les questions 🎉 Essayez le test !"],
+well:["أحسنت! 🎯","Well done! 🎯","Bravo ! 🎯"],wellT:["ستعود إليك الأسئلة الصعبة في الجلسات القادمة.","Hard questions will come back in future sessions.","Les questions difficiles reviendront dans les prochaines séances."],
+res:["نتيجة الاختبار","Test result","Résultat du test"],resl:["{n} من {t} — حد النجاح 90%","{n} of {t} — pass mark 90%","{n} sur {t} — seuil 90 %"],
+pass:["اجتزت القسم 🎉","Section passed 🎉","Section réussie 🎉"],failm:["أعد التدريب ثم حاول مجددًا","Practice more and try again","Entraînez-vous encore puis réessayez"],
+mist:["أخطاؤك:","Your mistakes:","Vos erreurs :"],ya:["إجابتك: ","Your answer: ","Votre réponse : "],
+typeph:["اكتب بالألمانية","Type in German","Écrivez en allemand"],tts:["الصوت غير مدعوم في جهازك أو متصفحك.","Audio is not supported on this device/browser.","Audio non pris en charge sur cet appareil."],
+src:["المصادر المرجعية","Reference sources","Sources de référence"],
+srcn:["الأسئلة كتبتُها أصليًا (لا نسخ من أي موقع) وبُنيت على القواعد والجداول الواردة في هذه المراجع.","The questions are original (not copied from any site) and built on the rules and tables in these references.","Les questions sont originales (non copiées) et fondées sur les règles et tableaux de ces références."],
+approx:["النطق المكتوب بالحروف اللاتينية تقريبي؛ اعتمد على رموز IPA وعلى الصوت. جودة الصوت تعتمد على أصوات جهازك الألمانية.","Respellings are approximate; rely on IPA and audio. Audio quality depends on your device’s German voices.","Les transcriptions sont approximatives ; fiez-vous à l’API et à l’audio. La qualité dépend des voix allemandes de l’appareil."],
+l_umlaut:["ä ö ü تسمى Umlaute: ä ≈ e ممدودة [ɛː]، ö = استدر الشفتين وقل e [øː]، ü = استدر الشفتين وقل i [yː]. أما ß فتُنطق ss [s] وتُكتب بعد المدّ والأصوات المركبة. الأسماء بين قوسين تقريبية.","ä ö ü are Umlaute: ä ≈ long ‘e’ [ɛː], ö = round your lips and say ‘e’ [øː], ü = round your lips and say ‘ee’ [yː]. ß sounds like ‘ss’ [s], written after long vowels and diphthongs. Respelled names are approximate.","ä ö ü sont des Umlaute : ä ≈ e long [ɛː], ö = arrondissez les lèvres et dites e [øː], ü = arrondissez les lèvres et dites i [yː]. ß se prononce ss [s]. Les noms transcrits sont approximatifs."],
+l_art:["الألوان تدل على الجنس: der مذكر (أزرق) · die مؤنث (وردي) · das محايد (أخضر). احفظ الاسم دائمًا مع أداته.","Colours show gender: der masculine (blue) · die feminine (pink) · das neuter (green). Always learn the noun with its article.","Les couleurs indiquent le genre : der masculin (bleu) · die féminin (rose) · das neutre (vert). Apprenez toujours le nom avec son article."],
+l_clock:["الساعة غير الرسمية (مثال 15:00 = drei Uhr)","Informal clock (example: 15:00 = drei Uhr)","L’heure informelle (exemple : 15:00 = drei Uhr)"],
+n_ch:["بعد a و o و u و au: ach-Laut [x]. بعد غيرها (i e ä ö ü ei eu äu l n r): ich-Laut [ç].","After a, o, u, au: ach-Laut [x]. After other sounds (i e ä ö ü ei eu äu l n r): ich-Laut [ç].","Après a, o, u, au : ach-Laut [x]. Après les autres (i e ä ö ü ei eu äu l n r) : ich-Laut [ç]."],
+n_num:["الآحاد قبل العشرات: 34 = vier-und-dreißig (4 + و + 30). 16 = sechzehn و17 = siebzehn و30 = dreißig.","Ones come before tens: 34 = vier-und-dreißig (4 + and + 30). 16 = sechzehn, 17 = siebzehn, 30 = dreißig.","Les unités avant les dizaines : 34 = vier-und-dreißig (4 + et + 30). 16 = sechzehn, 17 = siebzehn, 30 = dreißig."],
+n_ops:["plus = +  ·  minus = −  ·  mal = ×","plus = +  ·  minus = −  ·  mal = ×","plus = +  ·  minus = −  ·  mal = ×"],
+i_name:["ما اسم هذا الحرف؟","What is this letter called?","Comment s’appelle cette lettre ?"],i_letter:["أي حرف يحمل هذا الاسم؟","Which letter has this name?","Quelle lettre porte ce nom ?"],
+i_din:["جدول التهجئة الرسمي DIN 5009 (2022): أكمل","Official DIN 5009 (2022) spelling table: complete","Alphabet d’épellation officiel DIN 5009 (2022) : complétez"],
+i_trad:["جدول التهجئة التقليدي (ما زال شائعًا): أكمل","Traditional spelling table (still common): complete","Alphabet d’épellation traditionnel (encore courant) : complétez"],
+i_spell:["كيف تُهجّى الكلمة حرفًا حرفًا؟","How is the word spelled letter by letter?","Comment épeler le mot lettre par lettre ?"],
+i_after:["ما الحرف الذي يأتي بعد هذا الحرف؟","Which letter comes after this one?","Quelle lettre vient après celle-ci ?"],i_before:["ما الحرف الذي يأتي قبل هذا الحرف؟","Which letter comes before this one?","Quelle lettre vient avant celle-ci ?"],
+i_snd:["كيف يُنطق هذا الحرف أو المقطع؟","How is this letter or group pronounced?","Comment se prononce cette lettre ou ce groupe ?"],i_grf:["أي حروف تُعطي هذا الصوت في الكلمة؟","Which letters make this sound in the word?","Quelles lettres donnent ce son dans le mot ?"],
+i_has:["أي كلمة تحتوي على هذا الصوت؟","Which word contains this sound?","Quel mot contient ce son ?"],i_ch:["أي نوع من ch؟","Which kind of ch?","Quel type de ch ?"],
+i_n2w:["اختر كتابة الرقم بالكلمات","Choose the number in words","Choisissez le nombre en lettres"],i_listen_num:["استمع واختر الرقم","Listen and pick the number","Écoutez et choisissez le nombre"],
+i_w2n:["ما هذا الرقم؟","Which number is this?","Quel est ce nombre ?"],i_type_num:["اكتب الرقم بالكلمات","Write the number in words","Écrivez le nombre en lettres"],
+i_ord:["اختر العدد الترتيبي","Choose the ordinal number","Choisissez le nombre ordinal"],i_calc:["احسب","Calculate","Calculez"],
+i_mean:["ما معنى هذه العبارة؟","What does this phrase mean?","Que signifie cette phrase ?"],i_say:["كيف تقول هذا بالألمانية؟","How do you say this in German?","Comment dit-on cela en allemand ?"],
+i_listen_mean:["استمع واختر المعنى","Listen and pick the meaning","Écoutez et choisissez le sens"],i_type_say:["اكتب بالألمانية","Write it in German","Écrivez-le en allemand"],
+i_after_day:["ما اليوم التالي؟","Which day comes next?","Quel jour vient après ?"],i_before_day:["ما اليوم السابق؟","Which day comes before?","Quel jour vient avant ?"],
+i_daynum:["الأسبوع يبدأ بالإثنين: ما رقم هذا اليوم؟","The week starts on Monday: which number is this day?","La semaine commence le lundi : quel numéro ?"],i_day2:["ما اليوم بعد يومين؟","Which day is two days later?","Quel jour deux jours après ?"],
+i_after_m:["ما الشهر التالي؟","Which month comes next?","Quel mois vient après ?"],i_before_m:["ما الشهر السابق؟","Which month comes before?","Quel mois vient avant ?"],
+i_monthnum:["ما رقم هذا الشهر؟","Which number is this month?","Quel numéro pour ce mois ?"],i_season:["إلى أي فصل ينتمي هذا الشهر (نصف الكرة الشمالي)؟","Which season is this month in (northern hemisphere)?","Quelle saison pour ce mois (hémisphère nord) ?"],
+i_time:["كيف تُقال هذه الساعة بشكل غير رسمي؟","How do you say this time informally?","Comment dit-on cette heure de façon informelle ?"],
+i_color:["ما هذا اللون؟","What colour is this?","Quelle est cette couleur ?"],i_word:["ما اسم هذا بالألمانية (مع أداة التعريف)؟","What is this in German (with article)?","Comment dit-on cela en allemand (avec article) ?"],
+i_art:["ما أداة التعريف؟","Which article?","Quel article ?"],i_listen_pic:["استمع واختر الصورة","Listen and pick the picture","Écoutez et choisissez l’image"],i_type_word:["اكتب الكلمة بالألمانية","Type the word in German","Écrivez le mot en allemand"]
+};
+
+
+Object.assign(UI,{
+tagline:["تعلّم الألمانية خطوة بخطوة — بدقائق يوميًا","Learn German step by step — in minutes a day","Apprenez l’allemand pas à pas — en quelques minutes par jour"],
+hello:["مرحبًا! أنا فريتز 🦊 مرشدك للألمانية","Hallo! I’m Fritz 🦊, your German guide","Hallo ! Je suis Fritz 🦊, votre guide d’allemand"],
+ob_name:["ما اسمك؟","What’s your name?","Comment vous appelez-vous ?"],ob_goal:["كم تريد أن تتعلم كل يوم؟","How much do you want to learn each day?","Combien voulez-vous apprendre par jour ?"],
+g10:["🌱 خفيف — 10 نقاط (≈ 5 دقائق)","🌱 Casual — 10 XP (≈ 5 min)","🌱 Détendu — 10 XP (≈ 5 min)"],g20:["🔥 منتظم — 20 نقطة (≈ 10 دقائق)","🔥 Regular — 20 XP (≈ 10 min)","🔥 Régulier — 20 XP (≈ 10 min)"],g40:["🚀 جاد — 40 نقطة (≈ 20 دقيقة)","🚀 Serious — 40 XP (≈ 20 min)","🚀 Sérieux — 40 XP (≈ 20 min)"],
+ob_lvl:["من أين تريد أن تبدأ؟","Where do you want to start?","Par où voulez-vous commencer ?"],
+lv_new:["🌱 مبتدئ تمامًا — أبدأ من الحروف","🌱 Complete beginner — start with the letters","🌱 Débutant complet — commencer par les lettres"],lv_test:["🎯 أعرف بعض الألمانية — حدّدوا مستواي (اختبار قصير)","🎯 I know some German — find my level (short test)","🎯 Je connais un peu — trouver mon niveau (test court)"],
+cont:["متابعة","Continue","Continuer"],start:["ابدأ","START","COMMENCER"],nav_learn:["تعلّم","Learn","Apprendre"],nav_rev:["مراجعة","Review","Réviser"],nav_prof:["حسابي","Profile","Profil"],
+level:["المستوى {l}","Level {l}","Niveau {l}"],unit:["الوحدة","Unit","Unité"],locked:["أنهِ الدرس السابق أولًا 🔒","Finish the previous lesson first 🔒","Terminez d’abord la leçon précédente 🔒"],
+tipb:["📘 قاعدة","📘 Tip","📘 Astuce"],got:["فهمت!","Got it!","Compris !"],skip:["🎧 لا أستطيع الاستماع الآن","🎧 Can’t listen now","🎧 Je ne peux pas écouter"],
+i_match:["وصّل كل عنصر بما يناسبه","Match each item","Associez chaque élément"],i_order:["رتّب الكلمات لتكوّن الجملة","Arrange the words","Remettez les mots dans l’ordre"],
+i_fill:["أكمل بالإجابة الصحيحة","Fill in the correct answer","Complétez avec la bonne réponse"],i_pick:["اختر الإجابة الصحيحة","Pick the correct answer","Choisissez la bonne réponse"],i_typefill:["اكتب الكلمة الناقصة بالألمانية","Type the missing word in German","Écrivez le mot manquant en allemand"],
+praise:["رائع!|أحسنت!|ممتاز!|مذهل!|استمر هكذا!","Great!|Well done!|Excellent!|Amazing!|Keep going!","Super !|Bravo !|Excellent !|Génial !|Continuez !"],
+wrong:["ليست صحيحة — ستعود إليك","Not quite — it will come back","Pas tout à fait — elle reviendra"],ans:["الإجابة الصحيحة:","Correct answer:","Bonne réponse :"],combo:["🔥 {n} متتالية","🔥 {n} in a row","🔥 {n} de suite"],
+cel_ok:["أنهيت الدرس! 🎉","Lesson complete! 🎉","Leçon terminée ! 🎉"],cel_rev:["أحسنت المراجعة! 🧠","Great review! 🧠","Bonne révision ! 🧠"],cel_ex_ok:["اجتزت الامتحان! 🏆","You passed the exam! 🏆","Examen réussi ! 🏆"],cel_ex_fail:["لم تصل إلى 90% بعد — راجع وحاول مجددًا 💪","Not 90% yet — review and try again 💪","Pas encore 90 % — révisez et réessayez 💪"],
+acc:["الدقة","Accuracy","Précision"],streak:["أيام متتالية","day streak","jours d’affilée"],goal_done:["حققت هدفك اليومي! 🎯","Daily goal reached! 🎯","Objectif quotidien atteint ! 🎯"],goal_left:["باقٍ {n} نقطة لهدف اليوم","{n} XP to today’s goal","Encore {n} XP pour l’objectif du jour"],
+lvl_done:["أنهيت المستوى {l}! 🏆","Level {l} complete! 🏆","Niveau {l} terminé ! 🏆"],lvl_next:["التالي: المستوى {l} — هل أنت جاهز؟","Next up: level {l} — ready?","Prochain : niveau {l} — prêt ?"],start_next:["ابدأ المستوى {l} ←","Start level {l} →","Commencer le niveau {l} →"],
+cert:["🎓 شهادتي","🎓 My certificate","🎓 Mon certificat"],cert_t:["شهادة إتمام","Certificate of completion","Certificat de réussite"],cert_b:["أتمّ بنجاح المستوى {l} في اللغة الألمانية","has successfully completed German level {l}","a terminé avec succès le niveau d’allemand {l}"],print:["🖨️ طباعة","🖨️ Print","🖨️ Imprimer"],
+pl_res:["مستواك: {l} — فتحنا لك كل ما قبله!","Your level: {l} — everything before it is unlocked!","Votre niveau : {l} — tout ce qui précède est débloqué !"],
+rev_t:["مراجعة اليوم","Today’s review","Révision du jour"],rev_n:["{n} سؤال ينتظر المراجعة","{n} questions waiting","{n} questions à réviser"],rev_none:["لا شيء للمراجعة 🎉 تابع الدروس!","Nothing to review 🎉 keep going!","Rien à réviser 🎉 continuez !"],rev_go:["ابدأ المراجعة","Start review","Commencer la révision"],
+rev_why:["الأسئلة التي أخطأت فيها تعود إليك في أوقات محسوبة (غدًا، بعد 3 أيام، أسبوع…) حتى تثبت في ذاكرتك.","Questions you missed come back at timed gaps (tomorrow, 3 days, a week…) until they stick.","Les questions ratées reviennent à intervalles (demain, 3 jours, une semaine…) jusqu’à ce qu’elles soient acquises."],
+week:["هذا الأسبوع","This week","Cette semaine"],badges:["الشارات","Badges","Badges"],b1:["أول نقاطك","First XP","Premiers XP"],b2:["3 أيام متتالية","3-day streak","3 jours d’affilée"],b3:["أسبوع كامل","7-day streak","7 jours d’affilée"],b4:["100 نقطة","100 XP","100 XP"],b5:["500 نقطة","500 XP","500 XP"],b6:["اجتزت امتحان مستوى","Passed a level exam","Examen de niveau réussi"],
+settings:["الإعدادات","Settings","Paramètres"],s_xp:["{n} نقطة","{n} XP","{n} XP"],snd:["الأصوات والاهتزاز","Sounds & vibration","Sons et vibration"],voice_test:["🔊 اختبار الصوت الألماني","🔊 Test the German voice","🔊 Tester la voix allemande"],voices_n:["أصوات ألمانية على جهازك: {n}","German voices on your device: {n}","Voix allemandes sur l’appareil : {n}"],
+novoice:["لا يوجد صوت ألماني على جهازك. ثبّت صوتًا ألمانيًا من إعدادات الجهاز (تحويل النص إلى كلام) أو افتح الموقع في Chrome أو Edge.","No German voice on this device. Install one in the device settings (Text-to-speech) or open the site in Chrome or Edge.","Aucune voix allemande. Installez-en une dans les réglages (synthèse vocale) ou ouvrez le site dans Chrome ou Edge."],
+find_lvl:["🎯 حدّد مستواي","🎯 Find my level","🎯 Trouver mon niveau"],about:["عن المحتوى والمصادر","About the content & sources","À propos du contenu et des sources"],
+nm:["الاسم","Name","Nom"],em:["البريد الإلكتروني","Email","E-mail"],pw:["كلمة المرور (6 أحرف على الأقل)","Password (min. 6 characters)","Mot de passe (6 caractères min.)"],login:["لدي حساب — دخول","I have an account — log in","J’ai un compte — connexion"],signup:["ابدأ التعلّم — إنشاء حساب","Start learning — create account","Commencer — créer un compte"],err:["خطأ: ","Error: ","Erreur : "],confirm:["تحقق من بريدك لتأكيد الحساب ثم سجّل الدخول.","Check your email to confirm your account, then log in.","Vérifiez votre e-mail pour confirmer le compte, puis connectez-vous."],
+out:["تسجيل الخروج","Log out","Déconnexion"],neterr:["تعذّر الاتصال بالخادم، حاول مجددًا","Could not reach the server, try again","Connexion impossible, réessayez"],loading:["جارٍ التحميل…","Loading…","Chargement…"],empty:["لا توجد تمارين الآن","No exercises right now","Aucun exercice pour le moment"],
+quit_q:["هل تريد الخروج؟ سيضيع تقدّم هذه الجلسة.","Quit? You will lose this session’s progress.","Quitter ? Vous perdrez la progression de cette séance."],save:["حفظ","Save","Enregistrer"],avatar:["الصورة الرمزية","Avatar","Avatar"],goal_set:["الهدف اليومي","Daily goal","Objectif quotidien"],lang_set:["اللغة","Language","Langue"],
+setup:["افتح الملف في محرر نصوص وضع SUPABASE_URL وSUPABASE_ANON_KEY من مشروعك في Supabase.","Open this file in a text editor and set SUPABASE_URL and SUPABASE_ANON_KEY from your Supabase project.","Ouvrez ce fichier et renseignez SUPABASE_URL et SUPABASE_ANON_KEY de votre projet Supabase."]
+});
+
+/* المفاتيح تُوضع في ملف config.js */
+const CFG=window.APP_CONFIG||{},SUPABASE_URL=CFG.url||'YOUR_SUPABASE_URL',SUPABASE_ANON_KEY=CFG.key||'YOUR_ANON_KEY',AUDIO_FILES=CFG.audio!==false;
+const LVN=['A0','A1','A2','B1','B2','C1','C2'],LGS=['ar','en','fr'];
+const $=s=>document.querySelector(s),app=$('#app');
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let L=ls.get('lang')||(navigator.language||'en').slice(0,2);if(!LGS.includes(L))L='en';
+const t=(k,v={})=>{const d=UI[k];const s=d?(d[LGS.indexOf(L)]||d[1]):k;return s.replace(/\{(\w+)\}/g,(m,x)=>v[x]==null?'':v[x])};
+const tr=o=>o?(o[L]||o.en||o['*']||''):'';
+const dir=()=>{document.documentElement.lang=L;document.documentElement.dir=L==='ar'?'rtl':'ltr'};
+let sb=null,ME=null,PATH=null,S=null,cur=null,TAB='learn',SND=ls.get('snd')!=='0',lastUid,NOV=false;
+try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)}catch(e){}
+const rpc=async(n,a={})=>{const r=await sb.rpc(n,a);if(r.error){console.error(n,r.error);throw r.error}return r.data};
+const loader=()=>`<div class="c" style="padding-top:120px">${fox('happy',100)}<p class="mu">${t('loading')}</p></div>`;
+const fox=(m='happy',s=120)=>{const eyes=m==='sad'?'<circle cx="44" cy="58" r="5" fill="#431407"/><circle cx="76" cy="58" r="5" fill="#431407"/>':'<path d="M38 60q6-9 12 0M70 60q6-9 12 0" stroke="#431407" stroke-width="4" fill="none" stroke-linecap="round"/>',mouth=m==='sad'?'<path d="M50 92q10-9 20 0" stroke="#431407" stroke-width="4" fill="none" stroke-linecap="round"/>':'<path d="M48 82q12 14 24 0z" fill="#be123c"/>';return`<svg viewBox="0 0 120 120" width="${s}" height="${s}" aria-hidden="true"><path d="M12 14l30 22-18 30z" fill="#f97316"/><path d="M108 14L78 36l18 30z" fill="#f97316"/><path d="M60 24c30 0 46 20 46 46 0 22-18 36-46 36S14 92 14 70c0-26 16-46 46-46z" fill="#fb923c"/><path d="M60 62c18 0 34 10 34 26 0 10-14 18-34 18S26 98 26 88c0-16 16-26 34-26z" fill="#fff7ed"/>${eyes}<ellipse cx="60" cy="74" rx="7" ry="5" fill="#431407"/>${mouth}</svg>`};
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3200)}
+const modal=h=>{closeModal();const d=document.createElement('div');d.className='modal';d.id='md';d.innerHTML=`<div>${h}</div>`;d.onclick=e=>{if(e.target===d)d.remove()};document.body.appendChild(d)};
+const closeModal=()=>{const d=$('#md');d&&d.remove()};
+const lockMsg=()=>toast(t('locked'));
+
+/* ===== أصوات المؤثرات (تعمل دائمًا، بلا ملفات) ===== */
+let AC=null;
+const tone=(f,d,t0=0,ty='sine',v=.15)=>{if(!SND)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime+t0;o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+d)}catch(e){}};
+const vib=p=>{if(SND&&navigator.vibrate)try{navigator.vibrate(p)}catch(e){}};
+const sfx={ok:()=>{tone(660,.12);tone(880,.2,.1)},bad:()=>{tone(200,.28,0,'sawtooth',.09);vib([90])},tap:()=>tone(520,.04,0,'sine',.05),done:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.28,i*.13))};
+function confetti(){const c=$('#cf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const P=Array.from({length:90},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,r:4+Math.random()*6,vx:-2+Math.random()*4,vy:2+Math.random()*4,c:['#ff4d4f','#ffc800','#2bc48a','#3b82f6','#8b5cf6'][Math.floor(Math.random()*5)],a:Math.random()*6}));let n=0;(function f(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=.15;x.fillStyle=p.c;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});if(++n<160)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})()}
+
+/* ===== النطق الألماني: ملفات صوت (إن وُجدت) ثم صوت المتصفح ===== */
+const fnv=s=>{let h=0x811c9dc5;for(const b of new TextEncoder().encode(s)){h^=b;h=Math.imul(h,0x01000193)>>>0}return h.toString(16).padStart(8,'0')};
+let VOICE=null,BAD=new Set(),AUD=null;
+const voices=()=>window.speechSynthesis?speechSynthesis.getVoices().filter(v=>/^de/i.test(v.lang)):[];
+const pickVoice=()=>{const v=voices();VOICE=v.find(x=>/de-DE/i.test(x.lang)&&/(natural|neural|google|anna|katja|petra|markus|online)/i.test(x.name))||v.find(x=>/de-DE/i.test(x.lang))||v[0]||null;return VOICE};
+if(window.speechSynthesis){speechSynthesis.onvoiceschanged=pickVoice;pickVoice()}
+function tts(text){if(!window.speechSynthesis||typeof SpeechSynthesisUtterance==='undefined'){if(!NOV){NOV=true;toast(t('novoice'))}return}const u=new SpeechSynthesisUtterance(text),v=VOICE||pickVoice();if(v)u.voice=v;u.lang=v?v.lang:'de-DE';u.rate=.85;speechSynthesis.cancel();speechSynthesis.resume();speechSynthesis.speak(u);if(!v&&!NOV){NOV=true;toast(t('novoice'))}}
+function speak(text){
+ if(AUDIO_FILES&&/^http/.test(SUPABASE_URL)&&!BAD.has(text)){let done=false;const fb=()=>{if(!done){done=true;BAD.add(text);tts(text)}};if(AUD)AUD.pause();const a=AUD=new Audio(`${SUPABASE_URL}/storage/v1/object/public/audio/${fnv(text)}.mp3`);a.addEventListener('error',fb);a.play().catch(fb);return}
+ tts(text)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-say]');if(b)speak(b.dataset.say)});
+
+/* ===== الدخول والتهيئة ===== */
+function setL(l,au){L=l;ls.set('lang',l);dir();au?authView():render()}
+function authView(m=''){dir();app.innerHTML=`<div class="c" style="padding-top:36px">${fox('happy',150)}<h1>Deutsch Pfad</h1><p class="mu">${t('tagline')}</p></div><div class="card"><input class="t" id="nm" placeholder="${t('nm')}"><input class="t" id="em" type="email" dir="ltr" placeholder="${t('em')}"><input class="t" id="pw" type="password" dir="ltr" placeholder="${t('pw')}"><button class="btn" style="margin-top:8px" onclick="auth('up')">${t('signup')}</button><button class="btn gh" style="margin-top:12px" onclick="auth('in')">${t('login')}</button><div id="msg" class="mu c" style="margin-top:8px">${m}</div></div><div class="seg">${LGS.map(l=>`<button class="${l===L?'on':''}" onclick="setL('${l}',1)">${l.toUpperCase()}</button>`).join('')}</div>`}
+async function auth(m){const email=$('#em').value.trim(),password=$('#pw').value,name=$('#nm').value.trim();const r=m==='in'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password,options:{data:{name}}});if(r.error)return $('#msg').textContent=t('err')+r.error.message;if(m==='up'&&!r.data.session)$('#msg').textContent=t('confirm')}
+async function boot(){
+ if(!sb||!/^http/.test(SUPABASE_URL)){dir();app.innerHTML=`<div class="c" style="padding-top:60px">${fox('sad',120)}<p>${t('setup')}</p></div>`;return}
+ const{data:{session}}=await sb.auth.getSession();lastUid=session?session.user.id:null;
+ if(!session){ME=null;return authView()}
+ app.innerHTML=loader();
+ try{ME=await rpc('get_me')}catch(e){app.innerHTML=`<p class="c" style="padding-top:80px">${t('neterr')}</p>`;return}
+ if(!ME){app.innerHTML=`<p class="c" style="padding-top:80px">${t('neterr')} (profile)</p>`;return}
+ if(!ls.get('lang')&&ME.ui_lang&&LGS.includes(ME.ui_lang))L=ME.ui_lang;dir();
+ if(!ME.onboarded)return onboard();PATH=null;render()}
+if(sb)sb.auth.onAuthStateChange((e,s)=>{const id=s&&s.user?s.user.id:null;if((e==='SIGNED_IN'||e==='SIGNED_OUT')&&id!==lastUid)boot()});
+let OB={step:0,name:'',goal:20};
+function onboard(){const st=OB.step;let h=`<div class="c" style="padding-top:30px">${fox('happy',130)}</div>`;
+ if(st===0)h+=`<h1 class="c">${t('hello')}</h1><div class="card"><div class="seg" style="margin-bottom:12px">${LGS.map(l=>`<button class="${l===L?'on':''}" onclick="obLang('${l}')">${l.toUpperCase()}</button>`).join('')}</div><label>${t('ob_name')}</label><input class="t" id="obn" value="${esc(OB.name||ME.name||'')}"></div><button class="btn" onclick="obNext(1)">${t('cont')}</button>`;
+ if(st===1)h+=`<h1 class="c">${t('ob_goal')}</h1>${[10,20,40].map(g=>`<button class="opt ${OB.goal===g?'sel':''}" onclick="OB.goal=${g};onboard()">${t('g'+g)}</button>`).join('')}<button class="btn" style="margin-top:14px" onclick="obNext(2)">${t('cont')}</button>`;
+ if(st===2)h+=`<h1 class="c">${t('ob_lvl')}</h1><button class="opt" onclick="obFinish(false)">${t('lv_new')}</button><button class="opt" onclick="obFinish(true)">${t('lv_test')}</button>`;
+ app.innerHTML=h}
+function obLang(l){OB.name=($('#obn')||{}).value||OB.name;L=l;ls.set('lang',l);dir();onboard()}
+function obNext(n){if(OB.step===0)OB.name=($('#obn').value||'').trim()||ME.name||'';OB.step=n;onboard()}
+async function obFinish(test){try{await rpc('update_profile',{p_name:OB.name,p_goal:OB.goal,p_lang:L,p_onboarded:!test});ME=await rpc('get_me')}catch(e){return toast(t('neterr'))}test?startSession({mode:'placement'}):(PATH=null,render())}
+
+/* ===== الشاشات الرئيسية ===== */
+const today=()=>new Date().toISOString().slice(0,10);
+function topbar(){const y=new Date(Date.now()-864e5).toISOString().slice(0,10),st=(ME.last_day===today()||ME.last_day===y)?ME.streak:0;return`<div class="top"><span class="chip">🔥 ${st}</span><span class="chip">⚡ ${ME.xp}</span><span class="chip">🎯 ${ME.today}/${ME.goal}</span><span class="chip" style="cursor:pointer" onclick="tab('profile')">${ME.avatar}</span></div>`}
+const nav=()=>`<div class="nav"><div>${[['learn','🏠','nav_learn'],['practice','🧠','nav_rev'],['profile','👤','nav_prof']].map(([k,i,l])=>`<button class="${TAB===k?'on':''}" onclick="tab('${k}')"><b>${i}</b>${t(l)}${k==='practice'&&ME.due>0?' ('+ME.due+')':''}</button>`).join('')}</div></div>`;
+const tab=k=>{TAB=k;render()};
+async function render(){if(!ME)return;S=null;cur=null;dir();
+ if(TAB==='learn'){if(!PATH){app.innerHTML=topbar()+loader();try{PATH=await rpc('get_path')}catch(e){return toast(t('neterr'))}}app.innerHTML=topbar()+learnView()+nav();const c=$('.node.cur');if(c&&!window._sc){window._sc=1;c.scrollIntoView({block:'center'})}}
+ else if(TAB==='practice')app.innerHTML=topbar()+practiceView()+nav();else app.innerHTML=topbar()+profileView()+nav()}
+function learnView(){let h='',lv=-1,n=0,cr=null;const offs=[0,38,64,38,0,-38,-64,-38];
+ PATH.forEach(u=>u.lessons.forEach(l=>{if(!cr&&l.open&&l.stars<0)cr=l.id}));
+ PATH.forEach((u,ui)=>{if(u.level!==lv){lv=u.level;h+=`<div class="lvl">${t('level',{l:LVN[lv]})}</div>`}
+  h+=`<div class="unit" style="background:${u.color}"><div><small>${LVN[u.level]} · ${t('unit')} ${ui+1}</small><div style="font-size:19px;font-weight:900">${u.icon||''} ${esc(tr(u.title))}</div></div>${u.tip?`<button onclick="tip(${u.id})">${t('tipb')}</button>`:''}</div><div class="path">`;
+  u.lessons.forEach(l=>{const ex=l.kind==='exam',done=l.stars>=0,lock=!l.open&&!done,isCur=l.id===cr,off=ex?0:offs[(n++)%8];
+   h+=`<button class="node ${ex?'exam':''} ${done?'done':''} ${lock?'lock':''} ${isCur?'cur':''}" style="--x:${off}px" ${isCur?`data-go="${t('start')}"`:''} onclick="${lock?'lockMsg()':`openLesson(${l.id})`}">${lock?'🔒':ex?'🏆':done?'⭐':'▶'}${done?`<small>${'★'.repeat(l.stars)}</small>`:''}</button>`});
+  h+='</div>'});
+ return h}
+function tip(id){const u=PATH.find(x=>x.id===id);modal(`<h2>📘 ${esc(tr(u.title))}</h2><p style="font-size:18px">${esc(tr(u.tip))}</p><button class="btn" onclick="closeModal()">${t('got')}</button>`)}
+function openLesson(id){const u=PATH.find(u=>u.lessons.some(l=>l.id===id)),l=u.lessons.find(l=>l.id===id),go=()=>startSession({mode:l.kind==='exam'?'exam':'lesson',id}),seen=JSON.parse(ls.get('tips')||'{}');
+ if(u.tip&&!seen[u.id]&&l.stars<0){seen[u.id]=1;ls.set('tips',JSON.stringify(seen));window._go=go;modal(`<h2>📘 ${esc(tr(u.title))}</h2><p style="font-size:18px">${esc(tr(u.tip))}</p><button class="btn" onclick="closeModal();window._go()">${t('start')}</button>`)}else go()}
+function practiceView(){const n=ME.due;return`<div class="c" style="padding-top:10px">${fox('happy',110)}<h1>${t('rev_t')}</h1><p class="mu">${n?t('rev_n',{n}):t('rev_none')}</p></div>${n?`<button class="btn" onclick="startSession({mode:'review'})">${t('rev_go')}</button>`:''}<div class="card mu">${t('rev_why')}</div>`}
+const AV=['🦊','🐼','🦁','🐯','🐸','🐧','🦄','🐙','🦉','🐨','🐰','🐻'];
+function profileView(){const m=ME,mx=Math.max(1,...m.week.map(d=>d.xp)),passed=[];if(PATH)PATH.forEach(u=>u.lessons.forEach(l=>{if(l.kind==='exam'&&l.stars>=0)passed.push(u.level)}));
+ const B=[['🌱',m.xp>0,'b1'],['🔥',m.best_streak>=3,'b2'],['🔥🔥',m.best_streak>=7,'b3'],['⚡',m.xp>=100,'b4'],['🚀',m.xp>=500,'b5'],['🏆',passed.length>0,'b6']];
+ return`<div class="c" style="padding-top:6px"><div style="font-size:64px">${m.avatar}</div><h1>${esc(m.name||'')}</h1><div class="mu">${t('level',{l:LVN[m.placement]})} · ${t('s_xp',{n:m.xp})}</div></div>
+ <div class="card"><h2>${t('week')}</h2><div class="week">${m.week.map(d=>`<div><i style="height:${Math.round(80*d.xp/mx)}px"></i>${d.xp}</div>`).join('')}</div></div>
+ <div class="card"><h2>${t('badges')}</h2><div class="badges">${B.map(b=>`<span class="${b[1]?'':'off'}" title="${t(b[2])}">${b[0]}</span>`).join('')}</div></div>
+ ${passed.length?`<div class="card"><h2>${t('cert')}</h2>${passed.map(l=>`<button class="btn gh" style="margin:6px 0" onclick="cert(${l})">🎓 ${LVN[l]}</button>`).join('')}</div>`:''}
+ <div class="card"><h2>${t('avatar')}</h2><div class="av">${AV.map(a=>`<button class="${a===m.avatar?'on':''}" onclick="setAv('${a}')">${a}</button>`).join('')}</div>
+  <h2 style="margin-top:14px">${t('nm')}</h2><input class="t" id="pn" value="${esc(m.name||'')}"><button class="btn blu" onclick="saveName()">${t('save')}</button>
+  <h2 style="margin-top:14px">${t('lang_set')}</h2><div class="seg">${LGS.map(l=>`<button class="${l===L?'on':''}" onclick="chLang('${l}')">${l.toUpperCase()}</button>`).join('')}</div>
+  <h2 style="margin-top:14px">${t('goal_set')}</h2><div class="seg">${[10,20,40].map(g=>`<button class="${g===m.goal?'on':''}" onclick="setGoal(${g})">${g} XP</button>`).join('')}</div>
+  <h2 style="margin-top:14px">${t('snd')}</h2><div class="seg"><button class="${SND?'on':''}" onclick="togSnd()">${SND?'🔊 ON':'🔇 OFF'}</button><button onclick="voiceTest()">${t('voice_test')}</button></div>
+  <button class="btn gh" style="margin-top:14px" onclick="startSession({mode:'placement'})">${t('find_lvl')}</button></div>
+ <details class="card"><summary><b>${t('about')}</b></summary><p class="mu">${t('srcn')}</p><ul class="mu"><li><a href="https://www.dinmedia.de/de/norm/din-5009/352073096" target="_blank" rel="noopener">DIN 5009:2022</a></li><li><a href="https://dmorgan.web.wesleyan.edu/materials/german.htm" target="_blank" rel="noopener">Wesleyan — Pronouncing German</a></li><li><a href="https://aleman.yabla.com/lesson-A-look-at-pronunciation-Part-1-1663" target="_blank" rel="noopener">Yabla — Ich-/Ach-Laute</a></li><li><a href="https://learngerman.dw.com" target="_blank" rel="noopener">DW Learn German</a> · <a href="https://www.goethe.de" target="_blank" rel="noopener">Goethe-Institut</a> · <a href="https://www.duden.de" target="_blank" rel="noopener">Duden</a></li></ul><p class="mu">${t('approx')}</p></details>
+ <button class="btn gh" onclick="sb.auth.signOut()">${t('out')}</button>`}
+async function upd(a){try{await rpc('update_profile',a);ME=await rpc('get_me')}catch(e){toast(t('neterr'))}}
+const setAv=async a=>{await upd({p_avatar:a});render()},saveName=async()=>{await upd({p_name:$('#pn').value.trim()});toast('✓');render()},chLang=async l=>{L=l;ls.set('lang',l);dir();await upd({p_lang:l});PATH=null;render()},setGoal=async g=>{await upd({p_goal:g});render()},togSnd=()=>{SND=!SND;ls.set('snd',SND?'1':'0');render()};
+function voiceTest(){speak('Guten Tag! Ich lerne Deutsch.');setTimeout(()=>toast(t('voices_n',{n:voices().length})),600)}
+
+/* ===== جلسة التمارين ===== */
+async function startSession(o){app.innerHTML=loader();let ex;
+ try{ex=o.mode==='review'?await rpc('get_review',{p_lang:L,p_n:12}):o.mode==='placement'?await rpc('get_placement',{p_lang:L}):await rpc('get_lesson',{p_lesson:o.id,p_lang:L})}catch(e){toast(t('neterr'));return render()}
+ if(!ex||!ex.length){toast(t('empty'));return render()}
+ S={...o,run:(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now()+'-'+Math.random(),q:ex.slice(),total:ex.length,done:0,wrong:0,combo:0};next()}
+function next(){if(!S.q.length)return finishSession();const x=S.q[0];cur={x,sel:null,words:[],pairs:x.kind==='match'?x.options.l.map(()=>null):null,selL:null,res:null,busy:false,ans:''};draw();if(/^i_listen/.test(x.ins||'')&&x.say)setTimeout(()=>speak(x.say),350)}
+const isExam=()=>S.mode==='exam'||S.mode==='placement',listen=x=>/^i_listen/.test(x.ins||'');
+function draw(){const x=cur.x,r=cur.res;
+ let h=`<div class="ses"><div style="display:flex;gap:12px;align-items:center"><button class="x" onclick="quit()">✕</button><div class="pb"><i style="width:${100*S.done/S.total}%"></i></div></div><div class="ins">${t(x.ins||'i_pick')}</div>`;
+ if(listen(x))h+=`<button class="say bigsay" data-say="${esc(x.say)}">🔊</button>`;
+ else if(x.kind!=='match')h+=`<div class="q" dir="auto">${x.html?x.prompt:esc(x.prompt)}${x.say?`<button class="say" data-say="${esc(x.say)}">🔊</button>`:''}</div>`;
+ if(x.kind==='mc'){const op=x.options.map((o,i)=>{let c='opt'+(cur.sel===i?' sel':'');if(r){if(o===r.correct)c='opt ok';else if(cur.sel===i)c='opt bad'}return`<button class="${c}" dir="auto" ${r?'disabled':''} onclick="pick(${i})">${esc(o)}</button>`}).join('');h+=x.big?`<div class="grid2">${op}</div>`:op}
+ else if(x.kind==='type')h+=`<input class="in" id="ans" autocomplete="off" autocapitalize="off" spellcheck="false" ${r?`disabled value="${esc(cur.ans)}"`:''}><div class="keys">${['ä','ö','ü','ß'].map(c=>`<button onclick="addCh('${c}')">${c}</button>`).join('')}</div>`;
+ else if(x.kind==='order')h+=`<div class="chips">${cur.words.map((w,k)=>`<button ${r?'disabled':''} onclick="rmW(${k})">${esc(x.options[w])}</button>`).join('')}</div><div class="chips" style="border:0">${x.options.map((w,i)=>cur.words.includes(i)?'':`<button ${r?'disabled':''} onclick="addW(${i})">${esc(w)}</button>`).join('')}</div>`;
+ else{const L2=x.options.l,R2=x.options.r;h+='<div class="mt">'+L2.map((_,i)=>{const pj=cur.pairs[i],cl=pj!=null?'p'+i:(cur.selL===i?'sl':''),ri=cur.pairs.indexOf(i),cr=ri>=0?'p'+ri:'';return`<button class="${cl}" ${r?'disabled':''} dir="auto" onclick="tapL(${i})">${esc(L2[i])}</button><button class="${cr}" ${r?'disabled':''} dir="auto" onclick="tapR(${i})">${esc(R2[i])}</button>`}).join('')+'</div>'}
+ h+='</div>';
+ if(r&&!isExam()){const P=t('praise').split('|'),ok=r.ok;let det='';
+  if(!ok){det=x.kind==='match'&&r.m?x.options.l.map((l,i)=>`<div class="de">${esc(l)} → ${esc(x.options.r[r.m[i]])}</div>`).join(''):`${t('ans')} <span class="de">${esc(r.correct)}</span>`}
+  const nt=r.note_key?t(r.note_key):r.note?esc(r.note):'';
+  h+=`<div class="foot ${ok?'ok':'bad'}"><div><b>${ok?P[Math.floor(Math.random()*P.length)]:t('wrong')} ${ok&&S.combo>=3?`<small>${t('combo',{n:S.combo})}</small>`:''}</b>${det}${r.after?`<button class="say" data-say="${esc(r.after)}" style="margin:6px 0">🔊 ${esc(r.after)}</button>`:''}${nt?`<div style="font-size:14px;margin:4px 0">${nt}</div>`:''}<button class="btn" style="margin-top:8px" onclick="next()">${t('cont')}</button></div></div>`}
+ else{const ready=x.kind==='mc'?cur.sel!=null:x.kind==='type'?true:x.kind==='order'?cur.words.length>0:cur.pairs.every(p=>p!=null);
+  h+=`<div class="foot"><div><button class="btn" ${ready?'':'disabled'} onclick="check()">${isExam()?t('cf'):t('chk')}</button>${listen(x)?`<button class="btn gh" style="margin-top:10px" onclick="skip()">${t('skip')}</button>`:''}</div></div>`}
+ app.innerHTML=h;if(x.kind==='type'&&!r){const a=$('#ans');a&&a.focus()}}
+const pick=i=>{if(!cur.res){cur.sel=i;sfx.tap();draw()}},addW=i=>{if(!cur.res){cur.words.push(i);sfx.tap();draw()}},rmW=k=>{if(!cur.res){cur.words.splice(k,1);draw()}};
+const tapL=i=>{if(cur.res)return;if(cur.pairs[i]!=null)cur.pairs[i]=null;else cur.selL=i;draw()};
+const tapR=j=>{if(cur.res||cur.selL==null)return;const k=cur.pairs.indexOf(j);if(k>=0)cur.pairs[k]=null;cur.pairs[cur.selL]=j;cur.selL=null;sfx.tap();draw()};
+function addCh(c){const el=$('#ans');if(!el)return;const s=el.selectionStart==null?el.value.length:el.selectionStart,e=el.selectionEnd==null?s:el.selectionEnd;el.value=el.value.slice(0,s)+c+el.value.slice(e);el.focus();el.setSelectionRange(s+1,s+1)}
+function skip(){S.q.shift();S.total=Math.max(1,S.total-1);next()}
+function quit(){if(confirm(t('quit_q')))render()}
+async function check(){const x=cur.x;if(cur.busy||cur.res)return;let a;
+ if(x.kind==='mc'){if(cur.sel==null)return;a={p_choice:cur.sel}}
+ else if(x.kind==='type'){const v=(($('#ans')||{}).value||'');if(!v.trim())return;cur.ans=v;a={p_text:v}}
+ else if(x.kind==='order'){if(!cur.words.length)return;a={p_text:cur.words.map(i=>x.options[i]).join(' ')}}
+ else{if(cur.pairs.some(p=>p==null))return;a={p_pairs:cur.pairs}}
+ cur.busy=true;let r;try{r=await rpc('check_answer',{p_ex:x.id,p_lang:L,p_ctx:S.mode,p_run:S.run,...a})}catch(e){cur.busy=false;return toast(t('neterr'))}
+ cur.busy=false;cur.res=r;S.q.shift();
+ if(isExam()){S.done++;return next()}
+ if(r.ok){S.combo++;S.done++;sfx.ok()}else{S.combo=0;S.wrong++;S.q.push(x);sfx.bad()}
+ draw()}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&S&&cur&&!e.isComposing){e.preventDefault();cur.res&&!isExam()?next():check()}});
+
+/* ===== النهايات والاحتفال ===== */
+async function finishSession(){app.innerHTML=loader();let r;
+ try{
+  if(S.mode==='placement'){const p=await rpc('finish_placement',{p_run:S.run});ME=await rpc('get_me');PATH=null;return placeRes(p.placement)}
+  r=S.mode==='review'?await rpc('complete_review',{p_run:S.run}):await rpc('complete_lesson',{p_lesson:S.id,p_run:S.run});
+  ME=await rpc('get_me');PATH=null;
+ }catch(e){toast(t('neterr'));return render()}
+ celebrate(r)}
+function placeRes(p){sfx.done();confetti();app.innerHTML=`<div class="cel">${fox('happy',150)}<h1>${t('pl_res',{l:LVN[p]})}</h1></div><div class="foot ok"><div><button class="btn" onclick="TAB='learn';render()">${t('cont')}</button></div></div>`}
+function celebrate(r){const ex=r.kind==='exam',ok=r.pass!==false;
+ if(r.level_done){sfx.done();confetti();return levelDone(r)}
+ if(ok){sfx.done();confetti()}else sfx.bad();
+ const acc=r.total?Math.round(100*r.correct/r.total):100,left=Math.max(0,(r.goal||0)-(r.today||0));
+ app.innerHTML=`<div class="cel">${fox(ok?'happy':'sad',150)}<h1>${ex&&!ok?t('cel_ex_fail'):ex?t('cel_ex_ok'):r.kind==='review'?t('cel_rev'):t('cel_ok')}</h1>${r.stars&&ok&&!ex?`<div class="stars">${'⭐'.repeat(r.stars)}</div>`:''}<div class="stat"><div><b>+${r.xp||0}</b>XP</div>${r.total?`<div><b>${acc}%</b>${t('acc')}</div>`:''}<div><b>🔥 ${r.streak||0}</b>${t('streak')}</div></div><div class="ring" style="--p:${Math.min(100,100*(r.today||0)/(r.goal||1))}"><span>${r.today||0}/${r.goal||0}</span></div><p class="mu">${left?t('goal_left',{n:left}):t('goal_done')}</p></div><div class="foot ${ok?'ok':'bad'}"><div><button class="btn" onclick="TAB='learn';render()">${t('cont')}</button></div></div>`}
+function levelDone(r){const lv=r.level,nx=LVN[lv+1];app.innerHTML=`<div class="cel">${fox('happy',160)}<h1>${t('lvl_done',{l:LVN[lv]})}</h1><div class="stars">🏆</div><div class="stat"><div><b>+${r.xp}</b>XP</div><div><b>${Math.round(100*r.correct/Math.max(1,r.total))}%</b>${t('acc')}</div><div><b>🔥 ${r.streak}</b>${t('streak')}</div></div>${nx?`<p>${t('lvl_next',{l:nx})}</p>`:''}</div><div class="foot ok"><div><button class="btn gh" style="margin-bottom:10px" onclick="cert(${lv})">${t('cert')}</button><button class="btn" onclick="TAB='learn';render()">${nx?t('start_next',{l:nx}):t('cont')}</button></div></div>`}
+function cert(lv){const d=new Date().toLocaleDateString(L==='ar'?'ar-DZ':L);app.innerHTML=`<div style="padding-top:20px"><div class="cert"><div style="font-size:50px">🎓</div><h2>${t('cert_t')}</h2><div style="font-size:30px;font-weight:900;margin:14px 0">${esc(ME.name||'')}</div><p>${t('cert_b',{l:LVN[lv]})}</p><div style="font-size:44px;font-weight:900;color:var(--red)">${LVN[lv]}</div><p class="mu">${d} · Deutsch Pfad 🇩🇪</p></div><button class="btn" style="margin-top:16px" onclick="print()">${t('print')}</button><button class="btn gh" style="margin-top:12px" onclick="render()">${t('back')}</button></div>`}
+dir();boot();
+
+</script>
+</body>
+</html>
